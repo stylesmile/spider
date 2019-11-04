@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 # @Time    : 2019/10/21 10:15
-# @File    : 中国国际广播电台新闻爬虫.py
+# @File    : 荷兰网站爬虫.py
 # @Date    : 2019/10/21
-# @Author  : Yuwenjun
-# @Desc    : 网站http://laos.cri.cn数据爬取
+# @Author  : chenye
+# @Desc    :
 
 # request库官方文档
 # https://requests.kennethreitz.org//zh_CN/latest/user/quickstart.html
@@ -21,8 +21,8 @@ import time  # 时间模块
 class NewsSpider:
     def __init__(self):
         """分页列表的地址"""
-        self.url_temp = "https://www.filmtotaal.nl/nieuws/trailers-clips?page={}"  # 用于拼接的URL地址，加大括号是为了format赋值
-        self.url_temp_header = "https://www.filmtotaal.nl/nieuws/trailers-clips"  # 首页URL地址
+        self.url_temp = "https://www.filmtotaal.nl/nieuws/celebrity?page={}"  # 用于拼接的URL地址，加大括号是为了format赋值
+        self.url_temp_header = "https://www.filmtotaal.nl/celebrity/featured"  # 首页URL地址
         self.host_header = "https://www.filmtotaal.nl/"  # 相当于host，用于拼接全详情也URL
         self.headers = {
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3"}
@@ -34,9 +34,9 @@ class NewsSpider:
         self.is_running = True  # 回调标志位
         self.total_requests_num = 0  # 待完成任务数量
         self.total_response_num = 0  # 完成任务数量
-        self.filename = "荷兰电影咨询0-498.txt"  # 文件名
+        self.filename = "荷兰电影咨询celebrity0-339.txt"  # 文件名
         self.startNumber = 0  # 开始页数
-        self.endNumber = 498  # 结束页数
+        self.endNumber = 339  # 结束页数
 
     def parse_url_list(self, html):
         # 解析列表页HTML，获取详情页URL列表
