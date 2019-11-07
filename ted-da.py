@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 # @Time    : 2019/10/21 10:15
-# @File    : 中国国际广播电台新闻爬虫.py
+# @File    : 荷兰网站爬虫.py
 # @Date    : 2019/10/21
-# @Author  : Yuwenjun
-# @Desc    : 网站http://laos.cri.cn数据爬取
+# @Author  : chenye
+# @Desc    :
 
 # request库官方文档
 # https://requests.kennethreitz.org//zh_CN/latest/user/quickstart.html
@@ -18,15 +18,12 @@ from retrying import retry
 import time  # 时间模块
 
 
-symbols = ["+", "-", "*", "/"]
-
-
 class NewsSpider:
     def __init__(self):
         """分页列表的地址"""
-        self.url_temp = "https://www.filmtotaal.nl/nieuws/trailers-clips?page={}"  # 用于拼接的URL地址，加大括号是为了format赋值
-        self.url_temp_header = "https://www.filmtotaal.nl/nieuws/trailers-clips"  # 首页URL地址
-        self.host_header = "https://www.filmtotaal.nl/"  # 相当于host，用于拼接全详情也URL
+        self.url_temp = "https://www.ted.com/talks?language=da&sort=newest&page={}"  # 用于拼接的URL地址，加大括号是为了format赋值
+        self.url_temp_header = "https://www.ted.com/talks?language=da&sort=newest"  # 首页URL地址
+        self.host_header = "https://www.ted.com"  # 相当于host，用于拼接全详情也URL
         self.headers = {
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3"}
         self.queue = Queue()  # 实例化一个队列
@@ -37,14 +34,14 @@ class NewsSpider:
         self.is_running = True  # 回调标志位
         self.total_requests_num = 0  # 待完成任务数量
         self.total_response_num = 0  # 完成任务数量
-        self.filename = "荷兰电影咨询0-498.txt"  # 文件名
+        self.filename = "ted丹麦0-339.txt"  # 文件名
         self.startNumber = 0  # 开始页数
-        self.endNumber = 498  # 结束页数
+        self.endNumber = 339  # 结束页数
 
     def parse_url_list(self, html):
         # 解析列表页HTML，获取详情页URL列表
         html = etree.HTML(html)
-        url_list = html.xpath("///ul[@class='news-headline']/li[@class='no-border']/a/@href")
+        url_list = html.xpath("//[@class='media__image media__image--thumb talk-link__image']/a/@href")
         return url_list
 
     def get_url_list(self):
@@ -125,24 +122,11 @@ class NewsSpider:
         content_list = []
         for content in contents:
             if content.strip():
-                for symbol in symbols:
-                    if symbol in content:
-                        continue
-                # content_merge_list = self.split_content(
-                #     content.replace("\u200b", "")
-                #         .replace(u'\xa0', u' ')
-                #         .replace("", "")
-                content_merge_list = self.split_content(content.replace("\u200b", "").replace(u'\xa0', u' ')
-                                                        .replace("&lt", "").replace("$lte", "").replace("&gt", "")
-                                                        .replace("&gte", "")
-                                                        # .replace("$", "")
-                                                        # .replace(">", "")
-                                                        # .replace("<", "")
-                                                        # .replace("+", "")
-                                                        # .replace("-", "")
-                                                        # .replace("*", "")
-                                                        # .replace("/", "")
-                                                        )
+                content_merge_list = self.split_content(
+                    content.replace("\u200b", "")
+                        .replace(u'\xa0', u' ')
+                        .replace("", "")
+                )
                 content_list.append(content_merge_list)
         return content_list
 

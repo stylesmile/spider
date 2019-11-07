@@ -14,7 +14,7 @@ import re
 
 letter_regex = re.compile(r'[a-zA-Z]')
 # 加减乘除
-computer_symbol = re.compile(r"[＋－×÷﹢﹣±＝=+-\\]")
+computer_symbol = re.compile(r"[＋－×÷﹢﹣±＝=]")
 # 去掉这些符号
 special_symbol = re.compile(r"[#'，。★、【】《》？“”‘’！[\]_`{|\u4e00-\u9fa5}~]+")
 # 数字
@@ -36,32 +36,29 @@ def clean_tsv_content(contents):
             if k == 0:
                 if v == "۔":
                     e = 1
-            elif k < len(content) - 1:  # 分句
+            elif k < len(content) - 1:  # 分句 根据 .?!;分句
                 # 句号
-                if v == "۔":
-                    if content[k - 1] != "۔" and content[k + 1] != "۔":
+                if v == ".":
+                    if content[k - 1] != "." and content[k + 1] != ".":
                         if content[k - 1].isdecimal() and content[k + 1].isdecimal():
                             continue
                         data.append(content[e:k + 1].strip())
                         e = k + 1
                 # 问号
-                if v == "؟":
-                    if content[k - 1] != "؟" and content[k + 1] != "؟" and content[k + 1] != ")":
+                if v == "?":
+                    if content[k - 1] != "?" and content[k + 1] != "?" and content[k + 1] != ")":
                         data.append(content[e:k + 1].strip())
                         e = k + 1
-                # 感叹号
                 if v == "!":
                     if content[k - 1] != "!" and content[k + 1] != ")":
                         data.append(content[e:k + 1].strip())
                         e = k + 1
-                # 分号
                 if v == ";":
                     data.append(content[e:k + 1].strip())
                     e = k + 1
-                #
-                if v == "|":
-                    data.append(content[e:k + 1].strip())
-                    e = k + 1
+                # if v == "|":
+                #     data.append(content[e:k + 1].strip())
+                #     e = k + 1
             else:
                 data.append(content[e:].strip())
     return data
@@ -74,17 +71,17 @@ def main(input_path, excel_outpath):
     :return:
     """
     wb = Workbook()
-    ws1 = wb.create_sheet("Sheet1")
+    # 筛选的句子保存到2个sheet
+    ws1 = wb.create_sheet("去符号数字的句子")
     ws2 = wb.create_sheet("需手动筛选的句子")
     index = 1
     index2 = 1
-    # with codecs.open(input_path, "r", encoding="utf-8-sig") as f:
-    # with codecs.open(input_path, "r", encoding="gbk") as f:
-    with codecs.open(input_path, "r", encoding="utf-8") as f:
+    #with codecs.open(input_path, "r", encoding="utf-8-sig") as f:
+    with codecs.open(input_path, "rb") as f:
         contents = f.readlines()
         datas = clean_tsv_content(contents)
         for data in datas:
-            #data = data.decode('utf-8')
+            data = data.decode('utf-8')
             if data is None or len(data) < 15:
                 continue
             if data.count("،") >= 2:
@@ -94,6 +91,7 @@ def main(input_path, excel_outpath):
             if num_regex.findall(data) or kuohao_regex.findall(data):
                 ws2.cell(row=index2, column=1, value=data)
                 index2 += 1
+                continue
             ws1.cell(row=index, column=1, value=data)
             index += 1
     wb.remove_sheet(wb.get_sheet_by_name("Sheet"))
@@ -103,11 +101,13 @@ def main(input_path, excel_outpath):
 if __name__ == '__main__':
     #txt_path = input("请输入txt文本路径：")
     #excel_path = input("请输入excel保存地址：")
-    #txt_path = r"E:\dataset\E-BooksNL-[334]NIEUWSEPTEMBER2019\1Amerge.txt"
-    #excel_path = r"E:\dataset\E-BooksNL-[334]NIEUWSEPTEMBER2019\1Amerge.xlsx"
+    # 请输入txt文本路径
+    # txt_path = r"E:\dataset\E-BooksNL-[334]NIEUWSEPTEMBER2019\2Amerge.txt"
+    # 请输入excel保存地址
+    # excel_path = r"E:\dataset\E-BooksNL-[334]NIEUWSEPTEMBER2019\2Amerge.xlsx"
 
-    # txt_path = r"E:\dataset\E-BooksNL-[334]NIEUWSEPTEMBER2019\1Smerge.txt"
-    # excel_path = r"E:\dataset\E-BooksNL-[334]NIEUWSEPTEMBER2019\1Smerge.xlsx"
-    txt_path = r"E:\dataset\荷兰-ted80000.txt"
-    excel_path = r"E:\dataset\荷兰-ted80000.txt.xlsx"
+    txt_path = r"G:\dataset\result-2019-1107\result - 副本\merge.txt"
+    # 请输入excel保存地址
+    excel_path = r"G:\dataset\result-2019-1107\result - 副本\merge.txt.xlsx"
+
     main(txt_path, excel_path)
