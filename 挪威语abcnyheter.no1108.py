@@ -1,11 +1,10 @@
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# @Time    : 2019/10/21 10:15
-# @File    : 中国国际广播电台新闻爬虫.py
-# @Date    : 2019/10/21
+
+# @Date    : 2019/11/08
 # @Author  : Yuwenjun
-# @Desc    : 网站http://laos.cri.cn数据爬取
+# @Desc    : 网站https://www.abcnyheter.no/nyheter/norge数据爬取
 
 # request库官方文档
 # https://requests.kennethreitz.org//zh_CN/latest/user/quickstart.html
@@ -18,14 +17,14 @@ import time  # 时间模块
 import re
 
 
-letter_regex = re.compile(r'[a-zA-Z]')
-
+# letter_regex = re.compile(r'[a-zA-Z]')
+# # https://www.abcnyheter.no/nyheter/norge?offset=20
 
 class NewsSpider:
     def __init__(self):
-        self.url_temp = "https://no.imwu-nl.com/articles/news/page{}/"  # 用于拼接的URL地址，加大括号是为了format赋值
-        self.url_temp_header = "https://no.imwu-nl.com/articles/news/"  # 首页URL地址
-        self.host_header = "https://sv.imwu-nl.com"  # 相当于host，用于拼接全详情也URL
+        self.url_temp = "https://www.abcnyheter.no/nyheter/norge?offset={}"  # 用于拼接的URL地址，加大括号是为了format赋值
+        self.url_temp_header = "https://www.abcnyheter.no/nyheter/norge"  # 首页URL地址
+        self.host_header = "https://www.abcnyheter.no/nyheter/norge"  # 相当于host，用于拼接全详情也URL
         self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/604.1.34 (KHTML, "
                                       "like Gecko) Version/11.0 Mobile/15A5341f Safari/604.1"}
         self.queue = Queue()  # 实例化一个队列
@@ -38,27 +37,34 @@ class NewsSpider:
     def parse_url_list(self, html):
         # 解析列表页HTML，获取详情页URL列表
         html = etree.HTML(html)
-        url_list = html.xpath("//div[@class='post-card__info']/h2[@class='post-card__title']/a/@href")
+        url_list = html.xpath("//a[@class='c-category__article o-grid']/@href")
         return url_list
 
     def get_url_list(self):
         # 构造URL列表页网址，拼接补全详情页URL，并加入到队列
-        for i in range(600, 900):  # range为左闭右开，表示从1到100循环，i代表每次循环的值
+        for i in range(0, 5):  # range为左闭右开，表示从1到100循环，i代表每次循环的值
+            # i = i
+            pageCount = i * 10
+
             if i == 1:  # 针对首页不带后缀的，使用头URL
                 html = self.parse_url(self.url_temp_header)
             else:
-                html = self.parse_url(self.url_temp.format(i))
+                # html = self.parse_url(self.url_temp.format(i))
+                # html = self.parse_url(self.url_temp.format(pageCount))
+                # url = self.url_temp + pageCount
+                url = self.url_temp.format(pageCount)
+                html = self.parse_url(url)
             # 获取详情页URL，并将详情页URL加入到任务队列
             url_list = self.parse_url_list(html)
             for url in url_list:
                 url =self.host_header + url  # 如果详情页URL不完整，手动补全
-                #url =url  # 如果详情页URL不完整，手动补全
+                # url =url  # 如果详情页URL不完整，手动补全
                 print(url)
                 self.queue.put(url)  # 队列任务加1
                 self.total_requests_num += 1  # 数量加1
 
     def parse_url(self, url):
-        time.sleep(0.5)
+        # time.sleep(0.5)
         # 发送请求，获取响应
         response = requests.get(url, headers=self.headers)
         # 需要session的话，注释掉上面的代码，使用下面代码
@@ -107,7 +113,8 @@ class NewsSpider:
     def get_content_list(self, html_str):
         # 提取详情也的文本内容，返回文本列表
         html = etree.HTML(html_str)
-        contents = html.xpath("//article[@class='post']/div[@class='post-content']/p/text()")
+        #
+        contents = html.xpath("///div[@class='c-drp js-drp']/p/text()")
         content_list = []
         for content in contents:
             # if letter_regex.findall(content):
@@ -119,7 +126,7 @@ class NewsSpider:
 
     def save_content_list(self, content_list):
         # 保存数据到本地
-        with open('挪威语——新闻——科技新闻-sv.imwu-nl.com600-4000.txt', 'a', encoding='utf-8') as f:
+        with open('挪威语abcnyheter.no1108.txt', 'a', encoding='utf-8') as f:
             for contents in content_list:
                 for content in contents:
                     if len(content) < 5:

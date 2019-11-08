@@ -43,7 +43,7 @@ class NewsSpider:
 
     def get_url_list(self):
         # 构造URL列表页网址，拼接补全详情页URL，并加入到队列
-        for i in range(600, 900):  # range为左闭右开，表示从1到100循环，i代表每次循环的值
+        for i in range(2000, 4000):  # range为左闭右开，表示从1到100循环，i代表每次循环的值
             if i == 1:  # 针对首页不带后缀的，使用头URL
                 html = self.parse_url(self.url_temp_header)
             else:
@@ -119,7 +119,7 @@ class NewsSpider:
 
     def save_content_list(self, content_list):
         # 保存数据到本地
-        with open('挪威语——新闻——科技新闻-sv.imwu-nl.com600-4000.txt', 'a', encoding='utf-8') as f:
+        with open('挪威语——新闻——科技新闻-sv.imwu-nl.com2000-4000.txt', 'a', encoding='utf-8') as f:
             for contents in content_list:
                 for content in contents:
                     if len(content) < 5:
@@ -127,17 +127,13 @@ class NewsSpider:
                     f.write(content + '\n')
 
     def exetute_requests_item_save(self):
-        try:
-            # 单个请求任务完整执行逻辑
-            url = self.queue.get()  # 从队列中拿出一个URL
-            print(url)
-            html_str = self.parse_url(url)  # 发起请求获取响应内容
-            content_list = self.get_content_list(html_str)  # 解析响应内容，返回初步清洗文本
-            self.save_content_list(content_list)  # 保存到本地文件
-            self.total_response_num += 1  # 任务完成数量加1，单线程所有任务完成
-        except Exception as e:
-            print(e)
-            self.queue.put(url)
+        # 单个请求任务完整执行逻辑
+        url = self.queue.get()  # 从队列中拿出一个URL
+        print(url)
+        html_str = self.parse_url(url)  # 发起请求获取响应内容
+        content_list = self.get_content_list(html_str)  # 解析响应内容，返回初步清洗文本
+        self.save_content_list(content_list)  # 保存到本地文件
+        self.total_response_num += 1  # 任务完成数量加1，单线程所有任务完成
 
     def _callback(self, temp):
         # 保证函数能够被异步重复执行，self.is_running作用为递归退出条件

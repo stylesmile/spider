@@ -1,11 +1,10 @@
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# @Time    : 2019/10/21 10:15
-# @File    : 中国国际广播电台新闻爬虫.py
-# @Date    : 2019/10/21
+
+# @Date    : 2019/11/08
 # @Author  : Yuwenjun
-# @Desc    : 网站http://laos.cri.cn数据爬取
+# @Desc    : 网站https://www.nrk.no/sport/数据爬取
 
 # request库官方文档
 # https://requests.kennethreitz.org//zh_CN/latest/user/quickstart.html
@@ -18,12 +17,12 @@ import time  # 时间模块
 import re
 
 
-letter_regex = re.compile(r'[a-zA-Z]')
+# letter_regex = re.compile(r'[a-zA-Z]')
 
 
 class NewsSpider:
     def __init__(self):
-        self.url_temp = "https://no.imwu-nl.com/articles/news/page{}/"  # 用于拼接的URL地址，加大括号是为了format赋值
+        self.url_temp = "https://www.nrk.no/sport/"  # 用于拼接的URL地址，加大括号是为了format赋值
         self.url_temp_header = "https://no.imwu-nl.com/articles/news/"  # 首页URL地址
         self.host_header = "https://sv.imwu-nl.com"  # 相当于host，用于拼接全详情也URL
         self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/604.1.34 (KHTML, "
@@ -43,7 +42,7 @@ class NewsSpider:
 
     def get_url_list(self):
         # 构造URL列表页网址，拼接补全详情页URL，并加入到队列
-        for i in range(600, 900):  # range为左闭右开，表示从1到100循环，i代表每次循环的值
+        for i in range(900, 1200):  # range为左闭右开，表示从1到100循环，i代表每次循环的值
             if i == 1:  # 针对首页不带后缀的，使用头URL
                 html = self.parse_url(self.url_temp_header)
             else:
@@ -119,7 +118,7 @@ class NewsSpider:
 
     def save_content_list(self, content_list):
         # 保存数据到本地
-        with open('挪威语——新闻——科技新闻-sv.imwu-nl.com600-4000.txt', 'a', encoding='utf-8') as f:
+        with open('挪威语——新闻——科技新闻-sv.imwu-nl.com900-1200.txt', 'a', encoding='utf-8') as f:
             for contents in content_list:
                 for content in contents:
                     if len(content) < 5:

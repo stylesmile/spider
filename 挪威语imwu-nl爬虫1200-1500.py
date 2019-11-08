@@ -43,7 +43,7 @@ class NewsSpider:
 
     def get_url_list(self):
         # 构造URL列表页网址，拼接补全详情页URL，并加入到队列
-        for i in range(600, 900):  # range为左闭右开，表示从1到100循环，i代表每次循环的值
+        for i in range(1200, 1500):  # range为左闭右开，表示从1到100循环，i代表每次循环的值
             if i == 1:  # 针对首页不带后缀的，使用头URL
                 html = self.parse_url(self.url_temp_header)
             else:
@@ -119,7 +119,7 @@ class NewsSpider:
 
     def save_content_list(self, content_list):
         # 保存数据到本地
-        with open('挪威语——新闻——科技新闻-sv.imwu-nl.com600-4000.txt', 'a', encoding='utf-8') as f:
+        with open('挪威语——新闻——科技新闻-sv.imwu-nl.com1200-1500.txt', 'a', encoding='utf-8') as f:
             for contents in content_list:
                 for content in contents:
                     if len(content) < 5:

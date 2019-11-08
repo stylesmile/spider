@@ -16,7 +16,7 @@ letter_regex = re.compile(r'[a-zA-Z]')
 # 加减乘除
 computer_symbol = re.compile(r"[＋－×÷﹢﹣±＝=]")
 # 去掉这些符号
-special_symbol = re.compile(r"[#'，。★、【】《》？“”‘’！[\]_`{|\u4e00-\u9fa5}~]+")
+special_symbol = re.compile(r"[©@#'，。★、【】《》？“”‘’！[\]_`{|\u4e00-\u9fa5}~]+")
 # 数字
 num_regex = re.compile(r'[0-9]')
 # 特殊字符 放在另外一个文本
@@ -106,8 +106,27 @@ if __name__ == '__main__':
     # 请输入excel保存地址
     # excel_path = r"E:\dataset\E-BooksNL-[334]NIEUWSEPTEMBER2019\2Amerge.xlsx"
 
-    txt_path = r"G:\dataset\result-2019-1107\result - 副本\merge.txt"
-    # 请输入excel保存地址
-    excel_path = r"G:\dataset\result-2019-1107\result - 副本\merge.txt.xlsx"
+    # txt_path = r"E:\dataset\瑞典10-30-20191107.txt"
+    # excel_path = r"E:\dataset\瑞典10-30-20191107.txt.xlsx"
+
+    # txt_path = r"E:\dataset\瑞典科技新闻-20191107.txt"
+    # excel_path = r"E:\dataset\瑞典科技新闻-20191107.txt.xlsx"
+
+    #txt_path = r"D:\360极速浏览器下载\se\merge.txt"
+    #excel_path = r"D:\360极速浏览器下载\se\merge.txt.xlsx"
+
+    # txt_path = r"E:\dataset\E-BooksNL-[334]NIEUWSEPTEMBER2019\A2\1merge.txt"
+    # excel_path = r"E:\dataset\E-BooksNL-[334]NIEUWSEPTEMBER2019\A2\1merge.txt.xlsx"
+
+    # txt_path = r"E:\dataset\\挪威语vildmedkrimi网络评论-20191107.txt"
+    # excel_path = r"E:\dataset\\挪威语vildmedkrimi网络评论-20191107.txt.xlsx"
+    # txt_path = r"E:\dataset\挪威语——新闻——科技新闻-sv.imwu-nl.com2000-4000-20191107.txt"
+    # excel_path = r"E:\dataset\挪威语——新闻——科技新闻-sv.imwu-nl.com2000-4000-20191107.txt.xlsx"
+
+    txt_path = r"E:\dataset\挪威语vildmedkrimi网络评论-20191107-1.txt"
+    excel_path = r"E:\dataset\挪威语vildmedkrimi网络评论-20191107-1.txt.xlsx"
+
+    txt_path = r"E:\dataset\挪威语abcnyheter.no-1000-1108.txt"
+    excel_path = r"E:\dataset\挪威语abcnyheter.no-1000-1108.txt.xlsx"
 
     main(txt_path, excel_path)
