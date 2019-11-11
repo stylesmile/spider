@@ -13,14 +13,19 @@ import re
 
 
 letter_regex = re.compile(r'[a-zA-Z]')
-# 加减乘除
-computer_symbol = re.compile(r"[＋－×÷﹢﹣±＝=]")
+# 加减乘除 单独提出来，放一个是sheet
+computer_symbol = re.compile(r"[:＋－×÷﹢﹣±＝=]")
 # 去掉这些符号
-special_symbol = re.compile(r"[©@#'，。★、【】《》？“”‘’！[\]_`{|\u4e00-\u9fa5}~]+")
+"""
+符号说明
+« »挪威书名号
+
+"""
+special_symbol = re.compile(r"[!:;«»+–\-©@#'，。★、【】《》？“”‘’！[\]_`{|\u4e00-\u9fa5}~]")
 # 数字
 num_regex = re.compile(r'[0-9]')
 # 特殊字符 放在另外一个文本
-kuohao_regex = re.compile(r"[<>()?$;]")
+kuohao_regex = re.compile(r"[<>()?$]")
 
 
 def clean_tsv_content(contents):
@@ -56,6 +61,9 @@ def clean_tsv_content(contents):
                 if v == ";":
                     data.append(content[e:k + 1].strip())
                     e = k + 1
+                if v == ":":
+                    data.append(content[e:k + 1].strip())
+                    e = k + 1
                 # if v == "|":
                 #     data.append(content[e:k + 1].strip())
                 #     e = k + 1
@@ -88,6 +96,7 @@ def main(input_path, excel_outpath):
                 continue
             if computer_symbol.findall(data):
                 continue
+            data = special_symbol.sub("", data)
             if num_regex.findall(data) or kuohao_regex.findall(data):
                 ws2.cell(row=index2, column=1, value=data)
                 index2 += 1
@@ -123,10 +132,14 @@ if __name__ == '__main__':
     # txt_path = r"E:\dataset\挪威语——新闻——科技新闻-sv.imwu-nl.com2000-4000-20191107.txt"
     # excel_path = r"E:\dataset\挪威语——新闻——科技新闻-sv.imwu-nl.com2000-4000-20191107.txt.xlsx"
 
-    txt_path = r"E:\dataset\挪威语vildmedkrimi网络评论-20191107-1.txt"
-    excel_path = r"E:\dataset\挪威语vildmedkrimi网络评论-20191107-1.txt.xlsx"
+    # txt_path = r"E:\dataset\挪威语vildmedkrimi网络评论-20191107-1.txt"
+    # excel_path = r"E:\dataset\挪威语vildmedkrimi网络评论-20191107-1.txt.xlsx"
 
-    txt_path = r"E:\dataset\挪威语abcnyheter.no-1000-1108.txt"
-    excel_path = r"E:\dataset\挪威语abcnyheter.no-1000-1108.txt.xlsx"
+    # txt_path = r"E:\dataset\挪威语abcnyheter.no-1000-1108.txt"
+    # excel_path = r"E:\dataset\挪威语abcnyheter.no-1000-1108.txt.xlsx"
+    # txt_path = r"E:\dataset\挪威语abcnyheter.no1108-新闻-norge4000 - 副本.txt"
+    # excel_path = r"E:\dataset\挪威语abcnyheter.no1108-新闻-norge4000 - 副本.txt6.xlsx"
+    txt_path = r"E:\dataset\E-BooksNL-[334]NIEUWSEPTEMBER2019\A\1merge.txt"
+    excel_path = r"E:\dataset\E-BooksNL-[334]NIEUWSEPTEMBER2019\A\1merge.txt2.xlsx"
 
     main(txt_path, excel_path)
