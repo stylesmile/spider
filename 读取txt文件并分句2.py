@@ -139,7 +139,12 @@ if __name__ == '__main__':
     # excel_path = r"E:\dataset\挪威语abcnyheter.no-1000-1108.txt.xlsx"
     # txt_path = r"E:\dataset\挪威语abcnyheter.no1108-新闻-norge4000 - 副本.txt"
     # excel_path = r"E:\dataset\挪威语abcnyheter.no1108-新闻-norge4000 - 副本.txt6.xlsx"
-    txt_path = r"E:\dataset\E-BooksNL-[334]NIEUWSEPTEMBER2019\A\1merge.txt"
-    excel_path = r"E:\dataset\E-BooksNL-[334]NIEUWSEPTEMBER2019\A\1merge.txt2.xlsx"
+    # txt_path = r"E:\dataset\E-BooksNL-[334]NIEUWSEPTEMBER2019\A\1merge.txt"
+    # excel_path = r"E:\dataset\E-BooksNL-[334]NIEUWSEPTEMBER2019\A\1merge.txt2.xlsx"
+    # txt_path = r"E:\dataset\txt\挪威语abcnyheter.no1111-新闻-verden.py.txt"
+    # excel_path = r"E:\dataset\txt\挪威语abcnyheter.no1111-新闻-verden.py.txt.xlsx"
+
+    txt_path = r"D:\projects\study\spider\丹麦ekkofilm.dk-anmeldelser-1112.py.txt"
+    excel_path = r"D:\projects\study\spider\丹麦ekkofilm.dk-anmeldelser-1112.py.tx.xlsx"
 
     main(txt_path, excel_path)

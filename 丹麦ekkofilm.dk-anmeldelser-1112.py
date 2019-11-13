@@ -24,9 +24,9 @@ import re
 
 class NewsSpider:
     def __init__(self):
-        self.url_temp = "https://www.abcnyheter.no/json/category/Verden/?offset={}"  # 用于拼接的URL地址，加大括号是为了format赋值
-        self.url_temp_header = "https://www.abcnyheter.no/nyheter/verden"  # 首页URL地址
-        self.host_header = "https://www.abcnyheter.no/nyheter/verden"  # 相当于host，用于拼接全详情也URL
+        self.url_temp = "https://www.ekkofilm.dk/anmeldelser/?page={}"  # 用于拼接的URL地址，加大括号是为了format赋值
+        self.url_temp_header = "https://www.ekkofilm.dk/anmeldelser"  # 首页URL地址
+        self.host_header = "https://www.ekkofilm.dk/"  # 相当于host，用于拼接全详情也URL
         self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/604.1.34 (KHTML, "
                                       "like Gecko) Version/11.0 Mobile/15A5341f Safari/604.1"}
         self.queue = Queue()  # 实例化一个队列
@@ -39,8 +39,12 @@ class NewsSpider:
     def parse_url_list(self, html):
         # 解析列表页HTML，获取详情页URL列表
         html = etree.HTML(html)
-        url_list = html.xpath("//a[@class='c-category__article o-grid']/@href")
-        return url_list
+        url_list = html.xpath("//a[@class='plainLink']/@href")
+        url_list3 = html.xpath("//a[@class='xh-highlight']/@href")
+        url_list2 = html.xpath("//div[@class='related']/a/@href")
+        for item in url_list:
+            url_list2.append(item)
+        return url_list2
 
     def parse_url_list_str(self, html):
         # 解析列表页HTML，获取详情页URL列表
@@ -56,9 +60,9 @@ class NewsSpider:
 
     def get_url_list(self):
         # 构造URL列表页网址，拼接补全详情页URL，并加入到队列
-        for i in range(558, 600):  # range为左闭右开，表示从1到100循环，i代表每次循环的值
+        for i in range(5, 206):  # range为左闭右开，表示从1到100循环，i代表每次循环的值
             # i = i
-            pageCount = i * 10
+            pageCount = i * 1
 
             if i == 1:  # 针对首页不带后缀的，使用头URL
                 html = self.parse_url(self.url_temp_header)
@@ -69,7 +73,8 @@ class NewsSpider:
                 url_tem = self.url_temp.format(pageCount)
                 html = self.parse_url(url_tem)
             # 获取详情页URL，并将详情页URL加入到任务队列
-            url_list = self.parse_url_list_str(html)
+            url_list = self.parse_url_list(html)
+            # url_list = self.parse_url_list_str(html)
             for url in url_list:
                 url =self.host_header + url  # 如果详情页URL不完整，手动补全
                 # url =url  # 如果详情页URL不完整，手动补全
@@ -127,8 +132,11 @@ class NewsSpider:
     def get_content_list(self, html_str):
         # 提取详情也的文本内容，返回文本列表
         html = etree.HTML(html_str)
-        #
-        contents = html.xpath("///div[@class='c-drp js-drp']/p/text()")
+        # contents = html.xpath("//div[@class='container']div/div/div/p/text()")
+        # contents = html.xpath("//div[@class=‘teaser']/p/text()")
+        # contents = html.xpath("//div[@class='left']/div[@class='teaser']/p/text()")
+        # contents = html.xpath("//div[@id='article']/div/div/p/text()")
+        contents = html.xpath("//p/text()")
         content_list = []
         for content in contents:
             # if letter_regex.findall(content):
@@ -140,7 +148,7 @@ class NewsSpider:
 
     def save_content_list(self, content_list):
         # 保存数据到本地
-        with open('挪威语abcnyheter.no1111-新闻-verden.py.txt', 'a', encoding='utf-8') as f:
+        with open('丹麦ekkofilm.dk-anmeldelser-1112.py.txt', 'a', encoding='utf-8') as f:
             for contents in content_list:
                 for content in contents:
                     if len(content) < 5:
@@ -157,8 +165,11 @@ class NewsSpider:
             self.save_content_list(content_list)  # 保存到本地文件
             self.total_response_num += 1  # 任务完成数量加1，单线程所有任务完成
         except Exception as e:
+            self.total_response_num += 1
             print(e)
-            self.queue.put(url)
+            # 发生错误，把url从新放入队列
+            # self.queue.
+            # self.queue.put(url)
 
     def _callback(self, temp):
         # 保证函数能够被异步重复执行，self.is_running作用为递归退出条件
