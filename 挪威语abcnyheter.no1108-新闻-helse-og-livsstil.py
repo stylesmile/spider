@@ -59,7 +59,7 @@ class NewsSpider:
 
     def get_url_list(self):
         # 构造URL列表页网址，拼接补全详情页URL，并加入到队列
-        for i in range(1000, 1200):  # range为左闭右开，表示从1到100循环，i代表每次循环的值
+        for i in range(1900, 2000):  # range为左闭右开，表示从1到100循环，i代表每次循环的值
             # i = i
             pageCount = i * 10
 

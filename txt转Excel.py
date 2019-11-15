@@ -115,6 +115,15 @@ def main(input_path, excel_outpath):
 
 
 if __name__ == '__main__':
-    txt_path = input("请输入txt文本路径：")
-    excel_path = input("请输入excel保存地址：")
-    main(txt_path, excel_path)
+    # txt_path = input("请输入txt文本路径：")
+    # excel_path = input("请输入excel保存地址：")
+
+    # txt_path = r"E:\dataset\电子书电子书2019-1113\电子书txt-1113"
+    # excel_path = r"E:\dataset\电子书电子书2019-1113\电子书txt-1113\ebook-荷兰.xlsx"
+
+    # txt_path = r"E:\dataset\电子书电子书2019-1113\可用B-E"
+    # excel_path = r"E:\dataset\电子书电子书2019-1113\可用B-E\2019-1114-ebook-荷兰.xlsx"
+    txt_path = r"D:\360极速浏览器下载\se-ebook\1114"
+    excel_path = r"D:\360极速浏览器下载\se-ebook\1114\2019-1115-ebook-瑞典.xlsx"
+
+main(txt_path, excel_path)

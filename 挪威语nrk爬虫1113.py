@@ -1,10 +1,11 @@
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-
-# @Date    : 2019/11/08
+# @Time    : 2019/10/21 10:15
+# @File    : 中国国际广播电台新闻爬虫.py
+# @Date    : 2019/10/21
 # @Author  : Yuwenjun
-# @Desc    : 网站https://www.abcnyheter.no/nyheter/norge数据爬取
+# @Desc    : https://www.nrk.no/sport/
 
 # request库官方文档
 # https://requests.kennethreitz.org//zh_CN/latest/user/quickstart.html
@@ -14,21 +15,30 @@ from lxml import etree  # xpath 解析HTML
 from queue import Queue  # 队列，保证每个子线程任务唯一
 from multiprocessing.dummy import Pool  # 线程池
 import time  # 时间模块
-import json
 import re
 
 
-# letter_regex = re.compile(r'[a-zA-Z]')
-# # https://www.abcnyheter.no/nyheter/norge?offset=20
-# # https://www.abcnyheter.no/nyheter/norge?offset=20
+letter_regex = re.compile(r'[a-zA-Z]')
+
 
 class NewsSpider:
     def __init__(self):
-        self.url_temp = "https://www.ekkofilm.dk/artikler/?page={}"  # 用于拼接的URL地址，加大括号是为了format赋值
-        self.url_temp_header = "https://www.ekkofilm.dk/artikler"  # 首页URL地址
-        self.host_header = "https://www.ekkofilm.dk/"  # 相当于host，用于拼接全详情也URL
+        self.url_temp = "https://www.nrk.no/serum/api/render/{}?size=12&perspective=BRIEF&alignment=CENTER" \
+                        "&scope=FRONTPAGE&arrangement.offset={}&arrangement.startoffset=1&arrangement.quantity=12" \
+                        "&arrangement.repetition=PATTERN&arrangement.view%5B0%5D.perspective=LEAN&arrangement.view" \
+                        "%5B0%5D.size=6&arrangement.view%5B0%5D.alignment=RIGHT&arrangement.view%5B1%5D.perspective" \
+                        "=LEAN&arrangement.view%5B1%5D.size=6&arrangement.view%5B1%5D.alignment=RIGHT&arrangement" \
+                        ".view%5B2%5D.perspective=LEAN&arrangement.view%5B2%5D.size=6&arrangement.view%5B2%5D" \
+                        ".alignment=RIGHT&arrangement.view%5B3%5D.perspective=LEAN&arrangement.view%5B3%5D.size=6" \
+                        "&arrangement.view%5B3%5D.alignment=RIGHT&arrangement.view%5B4%5D.perspective=LEAN" \
+                        "&arrangement.view%5B4%5D.size=6&arrangement.view%5B4%5D.alignment=RIGHT&paged=SIMPLE"  #
+        # 用于拼接的URL地址，加大括号是为了format赋值
+        self.url_temp_header = "https://www.nrk.no/sport/"  # 首页URL地址
+        self.host_header = "https://www.nrk.no/serum/api/render/"  # 相当于host，用于拼接全详情也URL
         self.headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/604.1.34 (KHTML, "
-                                      "like Gecko) Version/11.0 Mobile/15A5341f Safari/604.1"}
+                                      "like Gecko) Version/11.0 Mobile/15A5341f Safari/604.1",
+                        "referer": "https://www.nrk.no/sport/"
+                        }
         self.queue = Queue()  # 实例化一个队列
         self.pool = Pool(5)  # 实例化一个线程池，最大为5
         self.cookies = {"security_session_mid_verify": "e63dce6af1e6dee46a3a145b79f7557d"}  # 针对一些有反爬措施的网站，带上cookie
@@ -39,54 +49,50 @@ class NewsSpider:
     def parse_url_list(self, html):
         # 解析列表页HTML，获取详情页URL列表
         html = etree.HTML(html)
-        # url_list = html.xpath("//div[@class='main overview ']/div/a/@href")
-        url_list = html.xpath("//a[@class='plainLink']/@href")
-        url_list2 = html.xpath("//div[@class='related']/a/@href")
-        # url_list2 = html.xpath("///div[@class='main overview ']/div/div[@class='related']/a/@href")
-        for item in url_list:
-            url_list2.append(item)
-        return url_list2
-
-    def parse_url_list_str(self, html):
-        # 解析列表页HTML，获取详情页URL列表
-        dic = json.loads(html)
-        url = dic['articles']
-        # print(url['canonicalUrl'])
-        url_list2 = url[::1]
-        url_list = []
-        for item in url_list2:
-            url_list.append(item['canonicalUrl'])
-        print(url_list)
+        url_list = html.xpath("//a[@class='autonomous']/@href")
         return url_list
 
     def get_url_list(self):
         # 构造URL列表页网址，拼接补全详情页URL，并加入到队列
-        for i in range(305, 600):  # range为左闭右开，表示从1到100循环，i代表每次循环的值
-            # i = i
-            pageCount = i * 100
+        next_url = None
+        try:
+            for i in range(0, 1000):  # range为左闭右开，表示从1到100循环，i代表每次循环的值
+                if i == 0:  # 针对首页不带后缀的，使用头URL
+                    html = self.parse_url(self.url_temp_header)
+                    next_url = self.get_head_click_url(html)[0]
+                else:
+                    # print(data_id)
+                    html = self.parse_url(self.host_header + next_url)
+                    next_url = self.get_click_url(html)[0]
+                    # data_id = self.get_url_data_id(html)
+                # 获取详情页URL，并将详情页URL加入到任务队列
+                url_list = self.parse_url_list(html)
+                print(url_list)
+                for url in url_list:
+                    self.queue.put(self.host_header + url)  # 队列任务加1
+                    self.total_requests_num += 1  # 数量加1
+        except Exception as e:
+            print(e)
 
-            if i == 1:  # 针对首页不带后缀的，使用头URL
-                html = self.parse_url(self.url_temp_header)
-            else:
-                # html = self.parse_url(self.url_temp.format(i))
-                # html = self.parse_url(self.url_temp.format(pageCount))
-                # url = self.url_temp + pageCount
-                url_tem = self.url_temp.format(pageCount)
-                html = self.parse_url(url_tem)
-            # 获取详情页URL，并将详情页URL加入到任务队列
-            url_list = self.parse_url_list(html)
-            # url_list = self.parse_url_list_str(html)
-            for url in url_list:
-                url =self.host_header + url  # 如果详情页URL不完整，手动补全
-                # url =url  # 如果详情页URL不完整，手动补全
-                print(url)
-                self.queue.put(url)  # 队列任务加1
-                self.total_requests_num += 1  # 数量加1
+    def get_button_data_id(self, html):
+        html = etree.HTML(html)
+        data_id = html.xpath("//button[@class='flow-page-forward nrk-button nrk-color-base']/@data-id")
+        index = data_id[0].find("?")
+        return data_id[0][:index]
+
+    def get_click_url(self, html):
+        html = etree.HTML(html)
+        url = html.xpath("//input[@class='next-data-id']/@value")
+        return url
+
+    def get_head_click_url(self, html):
+        html = etree.HTML(html)
+        url = html.xpath("//button[@class='flow-page-forward nrk-button nrk-color-base']/@data-id")
+        return url
 
     def parse_url(self, url):
-        # time.sleep(0.5)
         # 发送请求，获取响应
-        response = requests.get(url, headers=self.headers)
+        response = requests.get(url, headers=self.headers, timeout=5)
         # 需要session的话，注释掉上面的代码，使用下面代码
         # session = requests.session()
         # response = session.get(url, headers=headers)
@@ -111,7 +117,7 @@ class NewsSpider:
                             continue
                         if content[k - 1].isalpha() and content[k + 1].isalpha():
                             continue
-                        content_list.append(content[e:k].strip())
+                        content_list.append(content[e:k + 1].strip())
                         e = k + 1
                 if v == "?":
                     if content[k - 1] != "?" and content[k + 1] != "?" and content[k + 1] != ")":
@@ -124,21 +130,15 @@ class NewsSpider:
                     content_list.append(content[e:k + 1].strip())
                     e = k + 1
             else:
-                if v == ".":
-                    content_list.append(content[e:-1].strip())
-                else:
-                    content_list.append(content[e:].strip())
+                content_list.append(content[e:].strip())
         return content_list
 
     def get_content_list(self, html_str):
         # 提取详情也的文本内容，返回文本列表
         html = etree.HTML(html_str)
-        # contents = html.xpath("//div[@class='container']div/div/div/p/text()")
-        # contents = html.xpath("//div[@class=‘teaser']/p/text()")
-        # contents = html.xpath("//div[@class='left']/div[@class='teaser']/p/text()")
-        # contents = html.xpath("//div[@id='article']/div/div/p/text()")
-        contents = html.xpath("//p/text()")
+        contents = html.xpath("//div[@itemprop='articleBody']/p/text()")
         content_list = []
+        print(contents)
         for content in contents:
             # if letter_regex.findall(content):
             #     continue
@@ -149,7 +149,7 @@ class NewsSpider:
 
     def save_content_list(self, content_list):
         # 保存数据到本地
-        with open('丹麦ekkofilm.dk-artikler-1113.py.txt', 'a', encoding='utf-8') as f:
+        with open('挪威语nrk体育新闻.txt', 'a', encoding='utf-8') as f:
             for contents in content_list:
                 for content in contents:
                     if len(content) < 5:
@@ -166,11 +166,8 @@ class NewsSpider:
             self.save_content_list(content_list)  # 保存到本地文件
             self.total_response_num += 1  # 任务完成数量加1，单线程所有任务完成
         except Exception as e:
-            self.total_response_num += 1
             print(e)
-            # 发生错误，把url从新放入队列
-            # self.queue.
-            # self.queue.put(url)
+            self.queue.put(url)
 
     def _callback(self, temp):
         # 保证函数能够被异步重复执行，self.is_running作用为递归退出条件
@@ -186,7 +183,7 @@ class NewsSpider:
 
         while True:  # 防止主线程结束
             time.sleep(0.0001)  # 避免cpu空转，浪费资源
-            print("总任务数%s个,已完成任务%s个" % (self.total_requests_num, self.total_response_num))
+            # print("总任务数%s个,已完成任务%s个" % (self.total_requests_num, self.total_response_num))
             if self.total_response_num >= self.total_requests_num:
                 self.is_running = False
                 break
