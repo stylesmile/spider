@@ -16,7 +16,7 @@ from openpyxl import Workbook
 letter_regex = re.compile('[a-zA-Z]')
 computer_symbol = re.compile(r"[＋－×÷﹢﹣±＝=]")
 # 删除
-special_symbol = re.compile(r"[#'，。★、【】《》？“”‘’！[\]_`{|\u4e00-\u9fa5}~]+")
+special_symbol = re.compile(r"[[※§©!:;«»+–\-@#'，。★、【】《》？“”‘’！[\]_`{|\u4e00-\u9fa5}~]+")
 num_regex = re.compile('[0-9]')
 kuohao_regex = re.compile(r"[!:;«»<>():?$;؟]")
 
@@ -123,7 +123,9 @@ if __name__ == '__main__':
 
     # txt_path = r"E:\dataset\电子书电子书2019-1113\可用B-E"
     # excel_path = r"E:\dataset\电子书电子书2019-1113\可用B-E\2019-1114-ebook-荷兰.xlsx"
-    txt_path = r"D:\360极速浏览器下载\se-ebook\1114"
-    excel_path = r"D:\360极速浏览器下载\se-ebook\1114\2019-1115-ebook-瑞典.xlsx"
+    # txt_path = r"D:\360极速浏览器下载\se-ebook\1114"
+    # excel_path = r"D:\360极速浏览器下载\se-ebook\1114\2019-1115-ebook-瑞典.xlsx"
+    txt_path = r"C:\Users\chenye\Desktop\11-16"
+    excel_path = r"C:\Users\chenye\Desktop\11-16\2019-1116-ebook.xlsx"
 
 main(txt_path, excel_path)

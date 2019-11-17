@@ -21,7 +21,7 @@ computer_symbol = re.compile(r"[:＋－×÷﹢﹣±＝=]")
 « »挪威书名号
 
 """
-special_symbol = re.compile(r"[!:;«»+–\-©@#'，。★、【】《》？“”‘’！[\]_`{|\u4e00-\u9fa5}~]")
+special_symbol = re.compile(r"[※§©!:;«»+–\-@#'，。★、【】《》？“”‘’！[\]_`{|\u4e00-\u9fa5}~]")
 # 数字
 num_regex = re.compile(r'[0-9]')
 # 特殊字符 放在另外一个文本
