@@ -13,8 +13,7 @@ import os
 import difflib
 import re
 
-
-mark_symbol = re.compile(r"[,.:;?()[]&!*@#$%]")
+mark_symbol = re.compile(r"[,.:;?()[]&!*@#$%<>+-/'\"]")
 
 
 def main(file_path, output_path, sheet_name):
@@ -38,20 +37,22 @@ def main(file_path, output_path, sheet_name):
                 index += 1
                 continue
             else:
-                text_clean = mark_symbol.sub("", text)
-                print(text_clean)
+                if not text:
+                    continue
+                # text_clean = mark_symbol.sub("", text)
+                # print(text_clean)
                 tag = False
                 for row_new in ws_new.rows:
                     text2 = row_new[0].value
-                    text2_clean = mark_symbol.sub("", text2)
-                    ret = difflib.SequenceMatcher(None, text_clean, text2_clean).quick_ratio()
-                    if ret >= 0.8:
+                    # text2_clean = mark_symbol.sub("", text2)
+                    ret = difflib.SequenceMatcher(None, text, text2).quick_ratio()
+                    if ret >= 0.95:
                         tag = True
                         break
                 if not tag:
                     ws_new.cell(row=index, column=1, value=text)
                     index += 1
-        new_excel_name = excel_name + "(new).xlsx"
+        new_excel_name = excel_name + "new"
         if output_path is None:
             excel_file_outpath = os.path.join(file_path, new_excel_name)
         else:
@@ -60,16 +61,12 @@ def main(file_path, output_path, sheet_name):
 
 
 if __name__ == '__main__':
-    file_path = input("请输入待处理的Excel路径，如f:\\test1>>>")
-    output_path = input("请输入待输出的Excel路径，如不填写则去重后的Excel保存到原Excel路径中>>>")
+    file_path = input("请输入待处理的Excel文件夹路径，如f:\\test1>>>")
+    output_path = input("请输入待输出的Excel文件夹路径，如不填写则去重后的Excel保存到原Excel路径中>>>")
     sheet_name = input("请输入含有文本的sheet名，默认为Mysheet>>>")
-
-    # file_path = "E:\dataset\北欧-我的文本\已交付\丹麦20191114-12万-ekkofilm.dk影片介绍.xlsx"
-    # output_path = "E:\\dataset\\北欧-我的文本\\已交付\\丹麦-10万-ekkofilm.dk影片介绍-20191117.xlsx"
-    # sheet_name = "Sheet2"
     if not os.path.exists(file_path):
         print("请输入有效的待处理Excel路径")
         exit(1)
     if not sheet_name:
-        sheet_name = "Sheet2"
+        sheet_name = "Mysheet"
     main(file_path, output_path, sheet_name)

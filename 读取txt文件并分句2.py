@@ -151,7 +151,9 @@ if __name__ == '__main__':
     # txt_path = r"D:\projects\study\spider\丹麦ekkofilm.dk-用品artikler-1114.py.txt"
     # excel_path = r"D:\projects\study\spider\丹麦ekkofilm.dk-用品artikler-1114.py.txt-1413.xlsx"
 
-    txt_path = r"D:\projects\study\spider\丹麦ekkofilm.dk-用品artikler-1114-2.py.txt"
-    excel_path = r"D:\projects\study\spider\丹麦ekkofilm.dk-用品artikler-1114-2.py.txt.xlsx"
+    # txt_path = r"D:\projects\study\spider\丹麦ekkofilm.dk-用品artikler-1114-2.py.txt"
+    # excel_path = r"D:\projects\study\spider\丹麦ekkofilm.dk-用品artikler-1114-2.py.txt.xlsx"
+    txt_path = r"C:\Users\chenye\Desktop\lan\挪威-adlibris-1119.txt"
+    excel_path = r"C:\Users\chenye\Desktop\lan\挪威-adlibris-1119.txt.xlsx"
 
     main(txt_path, excel_path)
