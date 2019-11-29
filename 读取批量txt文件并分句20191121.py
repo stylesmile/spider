@@ -22,7 +22,7 @@ computer_symbol = re.compile(r"[\—\-\»\–_:＋－×÷﹢﹣±＝=]")
 « »挪威书名号
 用空格替換這些符號
 """
-special_symbol = re.compile(r"[…\/\*\{\}\[\]\»–—‘’“”※§©!:;«»+–\-@#'，。★、【】《》？！[\]_`{|\u4e00-\u9fa5}~]")
+special_symbol = re.compile(r"[•…\/\*\{\}\[\]\»–—‘’“”※§©!:;«»+–\-@#'，。★、【】《》？！[\]_`{|\u4e00-\u9fa5}~]")
 
 num_regex = re.compile('[0-9]')
 kuohao_regex = re.compile(r"[<>():?$;؟]")
