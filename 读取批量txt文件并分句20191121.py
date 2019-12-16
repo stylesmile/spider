@@ -152,7 +152,16 @@ if __name__ == '__main__':
     # excel_path = r"C:\Users\chenye\Desktop\lan\batch-2\used-1-20191122.xlsx"
     # txt_path = r"C:\Users\chenye\Desktop\lan\ebook-王小林-1127"
     # excel_path = r"C:\Users\chenye\Desktop\lan\ebook-王小林-1127\ebook-王小林-1127.xlsx"
-    txt_path = r"C:\Users\chenye\Desktop\lan\11-28ebook"
-    excel_path = r"C:\Users\chenye\Desktop\lan\11-28ebook\11-28eboo5.xlsx"
+    # txt_path = r"E:\dataset\convert-TXT-DANISH"
+    # excel_path = r"E:\dataset\convert-TXT-DANISH\convert-TXT-DANISH.xlsx"
+    # txt_path = r"E:\dataset\Convert-TXT-Dutch"
+    # excel_path = r"E:\dataset\Convert-TXT-Dutch\Convert-TXT-Dutch2019-1203.xlsx"
+
+    txt_path = r"E:\dataset\12-11丹麦语"
+    excel_path = r"E:\dataset\12-11丹麦语\12-11丹麦语.xlsx"
+
+    # txt_path = r"E:\dataset\Convert-TXT-Swedish"
+    # excel_path = r"E:\dataset\Convert-TXT-Swedish\Convert-TXT-Swedish.xlsx"
+
 
     main(txt_path, excel_path)

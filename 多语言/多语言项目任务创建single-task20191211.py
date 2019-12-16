@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # @Time    : 2019/11/28 15:11
-# @File    : 多语言项目任务创建.py
+# @File    : 多语言项目任务创建finally.py
 # @Date    : 2019/11/28
 # @Author  : Yuwenjun
 # @Desc    :
@@ -15,6 +15,11 @@ import re
 import pymysql
 from pymongo import MongoClient
 
+
+# db = pymysql.connect(host='192.168.0.37', user='will_art', passwd='jFHKm2i4rg4WqpMz', db='will_art')
+# client = MongoClient("192.168.0.37", 27017)
+# mongodb = client.tasks
+# mongodb.authenticate('tasks', 'm6pCEPrTZI84Lvka')
 
 db = pymysql.connect(host='39.97.250.105', user='futve', passwd='ahdjFfd45mm2idfsdf', db='will_art')
 client = MongoClient("39.97.250.105", 27017)
@@ -52,9 +57,9 @@ def insert_mysql(dataset_name, col_name, dataset_count, duration, type, mark_typ
 def create_unique_index(col_name):
     col = mongodb[col_name]
     all_index = col.index_information()
-    has_md5_index = all_index.get("md5", False)
+    has_md5_index = all_index.get("md5_1", False)
     if has_md5_index:
-        if all_index['md5'].get('unique', False):  # md5为唯一索引
+        if all_index['md5_1'].get('unique', False):  # md5为唯一索引
             pass
         else:
             col.drop_index([("md5", 1)])
@@ -65,8 +70,8 @@ def create_unique_index(col_name):
 
 def build_content_dic(order, content, origin, category):
     content_dic = dict()
-    clear_content = mark_symbol.sub("", content.replace(" ", ""))  # 去掉空格，标点符号计算md5
-    md5 = get_content_md5(clear_content)
+    #clear_content = mark_symbol.sub("", content.replace(" ", ""))  # 去掉空格，标点符号计算md5
+    md5 = get_content_md5(content)
     current_time = int(time.time() * 1000)
     content_dic['order'] = order
     content_dic['content'] = content
@@ -83,34 +88,41 @@ def build_content_dic(order, content, origin, category):
 def get_col_last_order(col_name):
     col = mongodb[col_name]
     if col.count() > 0:
+        print("数据集已存在，请输入其它名字")
+        exit(1)
         ret = col.find({}).sort([("_id", -1)]).limit(1)
         return ret.get("order") + 1
     else:
         return 1
 
 
-def main(input_path, col_name, dataset_name, sheet_name=None):
+def main(input_path, col_name, dataset_name, header, sheet_name):
     print("--- script start ---")
+    header = 0 if header else None
     if sheet_name:
-        df = pd.read_excel(input_path, encoding="utf-8", sheet_name=sheet_name)
+        df = pd.read_excel(input_path, encoding="utf-8", header=header, sheet_name=sheet_name)
     else:
-        df = pd.read_excel(input_path, encoding="utf-8")
+        df = pd.read_excel(input_path, header=header, encoding="utf-8")
     print("--- success read excel --- ")
 
-    df = df.drop_duplicates(subset="content").dropna()
+    df = df.drop_duplicates(subset="content").dropna() if header else df.drop_duplicates().dropna()
 
     print("--- start write to mongo ---")
     create_unique_index(col_name)  # 给集合中的md5字段建立唯一索引
+
     data_dic = dict()
     count = 0
     order = get_col_last_order(col_name)  # 获取当前集合最后一条数据的order
+    origin = input_path.split("/")[-1].split(".")[0]
+    category = 0
+    col_index = "content" if header else 0
     for row in df.iterrows():
-        content = row[1]['content'].strip()
-        content = special_symbol.sub("", content)  # 去掉特殊符号
+        content = row[1][col_index].strip()
+        # content = special_symbol.sub("", content)  # 去掉特殊符号
         if not content:
             continue
-        origin = row[1]['origin']
-        category = row[1]['category']
+        # origin = row[1]['origin']
+        # category = row[1]['category']
         content_dict = build_content_dic(order, content, origin, category)
 
         if not content_dict:
@@ -118,20 +130,40 @@ def main(input_path, col_name, dataset_name, sheet_name=None):
         order += 1
 
         data_dic[content_dict.get("md5")] = content_dict
-        if len(data_dic.keys()) == 5000:
-            count += 5000
+        if len(data_dic.keys()) > 1120:
+            print("单任务文本句数过长")
+            exit(1)
+        if len(data_dic.keys()) == 50000:
+            count += 50000
             mongodb[col_name].insert_many([value for value in data_dic.values()], ordered=False)
             data_dic.clear()
         print(content_dict)
     count += len(data_dic.keys())
+    if count < 1000:
+        print("Excel文本句数低于1000句，请确认是否继续创建")
+        ret = input("请输入1或者其它任意值确认是否继续执行脚本，1代表继续执行，其它值结束脚本：")
+        if ret != "1":
+            print("脚本中断执行")
+            exit(1)
+        else:
+            print("等待5秒后，脚本继续执行")
+            time.sleep(5)
     mongodb[col_name].insert_many([value for value in data_dic.values()], ordered=False)
-    insert_mysql(dataset_name, col_name, count, 0, 1, 5)
+    insert_mysql(dataset_name, col_name, count, 0, 0, 5)
     data_dic.clear()
-    print("--- script end 插入了>>{}<<条数据---".format(count))
+    print("--- script end 插入了>>{}<<条数据 ---".format(count))
 
 
 if __name__ == '__main__':
     input_path = input("请输入Excel文件路径：")
     col_name = input("请输入数据集名称：")
     dataset_name = input("请输入数据集中文名：")
-    main(input_path, col_name, dataset_name)
+    header = input("请输入header（无表头回车，有表头1）：")
+    sheet_name = input("请输入sheet_name名：")
+    if not all((input_path, col_name, dataset_name)):
+        print("请检查Excel路径、数据集名和中文名参数是否缺失")
+        exit(1)
+    main(input_path, col_name, dataset_name, header, sheet_name)
+
+    #C:\Users\chenye\Desktop\test-cn-test.xlsx
+    #col_test_cn_20191211_3
