@@ -8,23 +8,23 @@
 # @Desc    :
 
 
-import time
-import pandas as pd
 import hashlib
 import re
+import time
+
+import pandas as pd
 import pymysql
 from pymongo import MongoClient
-
 
 # db = pymysql.connect(host='192.168.0.37', user='will_art', passwd='jFHKm2i4rg4WqpMz', db='will_art')
 # client = MongoClient("192.168.0.37", 27017)
 # mongodb = client.tasks
 # mongodb.authenticate('tasks', 'm6pCEPrTZI84Lvka')
 
-db = pymysql.connect(host='39.97.250.105', user='futve', passwd='ahdjFfd45mm2idfsdf', db='will_art')
-client = MongoClient("39.97.250.105", 27017)
+db = pymysql.connect(host='39.97.250.105', user='root', passwd='db123456!', db='will_art', port=3305)
+client = MongoClient("39.97.250.105", 27016)
 mongodb = client.tasks
-mongodb.authenticate('tasks', '05KjjkCTS2lebEPC')
+mongodb.authenticate('tasks', 'admin123456!')
 
 mark_symbol = re.compile(r"[۔,.:;?|()&!*@$%<>+-/'\"]")
 special_symbol = re.compile(r"[#'＋－×÷﹢﹣±＝=▣☆•，。★、😂【】《》？“”‘’！[]_`{|\u4e00-\u9fa5}~]+")
@@ -70,7 +70,7 @@ def create_unique_index(col_name):
 
 def build_content_dic(order, content, origin, category):
     content_dic = dict()
-    #clear_content = mark_symbol.sub("", content.replace(" ", ""))  # 去掉空格，标点符号计算md5
+    # clear_content = mark_symbol.sub("", content.replace(" ", ""))  # 去掉空格，标点符号计算md5
     md5 = get_content_md5(content)
     current_time = int(time.time() * 1000)
     content_dic['order'] = order
@@ -100,9 +100,9 @@ def main(input_path, col_name, dataset_name, header, sheet_name):
     print("--- script start ---")
     header = 0 if header else None
     if sheet_name:
-        df = pd.read_excel(input_path, encoding="utf-8", header=header, sheet_name=sheet_name)
+        df = pd.read_excel(input_path, encoding="utf-8", header=header, sheet_name=sheet_name, engine="openpyxl")
     else:
-        df = pd.read_excel(input_path, header=header, encoding="utf-8")
+        df = pd.read_excel(input_path, header=header, encoding="utf-8", engine="openpyxl")
     print("--- success read excel --- ")
 
     df = df.drop_duplicates(subset="content").dropna() if header else df.drop_duplicates().dropna()
@@ -165,5 +165,5 @@ if __name__ == '__main__':
         exit(1)
     main(input_path, col_name, dataset_name, header, sheet_name)
 
-    #C:\Users\chenye\Desktop\test-cn-test.xlsx
-    #col_test_cn_20191211_3
+    # C:\Users\chenye\Desktop\test-cn-test.xlsx
+    # col_test_cn_2019_1220_1  测试中文2019_1220_1
