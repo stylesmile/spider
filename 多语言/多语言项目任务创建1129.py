@@ -16,7 +16,7 @@ import pymysql
 from pymongo import MongoClient
 
 
-db = pymysql.connect(host='39.97.250.105', user='futve', passwd='ahdjFfd45mm2idfsdf', db='will_art')
+db = pymysql.connect(host='39.97.250.105', user='root', passwd='db123456!', db='will_art', port=3305)
 client = MongoClient("39.97.250.105", 27017)
 mongodb = client.tasks
 mongodb.authenticate('tasks', '05KjjkCTS2lebEPC')
