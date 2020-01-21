@@ -157,11 +157,18 @@ if __name__ == '__main__':
     # txt_path = r"E:\dataset\Convert-TXT-Dutch"
     # excel_path = r"E:\dataset\Convert-TXT-Dutch\Convert-TXT-Dutch2019-1203.xlsx"
 
-    txt_path = r"E:\dataset\12-11丹麦语"
-    excel_path = r"E:\dataset\12-11丹麦语\12-11丹麦语.xlsx"
+    txt_path = r"C:\Users\Admin\Desktop\bookmate_20200121"
+    excel_path = r"C:\Users\Admin\Desktop\bookmate_20200121\bookmate_20200121.xlsx"
 
     # txt_path = r"E:\dataset\Convert-TXT-Swedish"
     # excel_path = r"E:\dataset\Convert-TXT-Swedish\Convert-TXT-Swedish.xlsx"
 
 
     main(txt_path, excel_path)
+
+# 去重
+# =trim(A1)
+# =LEN(TRIM(C1))-LEN(SUBSTITUTE(TRIM(C1)," ",))+1
+# =LEFT(C1,1)
+# =EXACT(UPPER(E1),E1)
+# 去重
