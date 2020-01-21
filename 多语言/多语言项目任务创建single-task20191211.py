@@ -10,8 +10,8 @@
 
 import hashlib
 import re
+import openpyxl
 import time
-
 import pandas as pd
 import pymysql
 from pymongo import MongoClient
@@ -22,7 +22,7 @@ from pymongo import MongoClient
 # mongodb.authenticate('tasks', 'm6pCEPrTZI84Lvka')
 
 db = pymysql.connect(host='39.97.250.105', user='root', passwd='db123456!', db='will_art', port=3305)
-client = MongoClient("39.97.250.105", 27016)
+client = MongoClient("39.97.250.105", 27015)
 mongodb = client.tasks
 mongodb.authenticate('tasks', 'admin123456!')
 
@@ -165,5 +165,5 @@ if __name__ == '__main__':
         exit(1)
     main(input_path, col_name, dataset_name, header, sheet_name)
 
-    # C:\Users\chenye\Desktop\test-cn-test.xlsx
-    # col_test_cn_2019_1220_1  测试中文2019_1220_1
+    # C:\Users\Admin\Desktop\excel\test-cn-test.xlsx
+    # col_test_cn_2020_0119_10  测试中文2020_0119_10
