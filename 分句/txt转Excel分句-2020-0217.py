@@ -19,8 +19,7 @@ special_symbol = re.compile(r"[#'，。★、【】《》？“”‘’！[\]_`
 num_regex = re.compile('[0-9]+')  # 数字正则
 kuohao_regex = re.compile(r"[<>():?$;؟]+")  # 问句、括号、冒号等语气可能不确定符号的正则
 mark_symbol = re.compile('[,.:;?()[]<>&!#%"\'”“]+')  # 规则允许符号的正则
-
-# replace_regex = re.compile(r"[😂【】]+")  # 需要被替换为空格符号的正则
+#replace_regex = re.compile(r"[😂【】]+")  # 需要被替换符号的正则
 replace_regex = re.compile(r"[˝\*«»?()\[\]<>•…–-—\-—﹣😂【】]+")  # 需要被替换符号的正则 替换为空格
 
 
@@ -109,7 +108,7 @@ def main(input_path, excel_outpath):
     for txt_name in txt_names:  # 遍历处理每个TXT
         print(txt_name)
         txt_path = os.path.join(input_path, txt_name)  # 拼接路径
-        with codecs.open(txt_path, "r", encoding="utf-8-sig") as f:  # 读取TXT
+        with codecs.open(txt_path, "r", encoding="utf-8", errors="ignore") as f:  # 读取TXT
             contents = merge_content(f.readlines())  # 文本按行找符号合并
             datas = clean_tsv_content(contents)  # 分局
             for data in datas:
@@ -141,10 +140,9 @@ def main(input_path, excel_outpath):
 if __name__ == '__main__':
     #txt_path = input("请输入txt文本路径：")
     #excel_path = input("请输入excel保存地址：")
-    txt_path = r"F:\data\NO-14-ebook-2"
-    excel_path = r"F:\data\NO-14-ebook-2\NO-14-ebook-2.xlsx"
+    txt_path = r"F:\data\hansa2020-0217"
+    excel_path = r"F:\data\hansa2020-0217\hansa2020-0217.xlsx"
     main(txt_path, excel_path)
-
 
 # 去重 去–- 双空格替换空格
 # =trim(A1)

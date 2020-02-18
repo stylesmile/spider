@@ -16,13 +16,14 @@ import re
 import pymysql
 from pymongo import MongoClient
 
+
 db = pymysql.connect(host='39.97.250.105', port=3307, user='root', passwd='db123456!', db='will_art')
 client = MongoClient("39.97.250.105", 27015)
-mongodb = client.tasks
-mongodb.authenticate('tasks', 'admin123456!')
+mongodb = client.data
+# mongodb.authenticate('tasks', 'admin123456!')
 
-mark_symbol = re.compile(r"[۔,.:;?|()&!*@$%<>+-/'\"]")
-special_symbol = re.compile(r"[#'＋－×÷﹢﹣±＝=▣☆•，。★、😂【】《》？“”‘’！[]_`{|\u4e00-\u9fa5}~]+")
+mark_symbol = re.compile(r"[۔,.:;?“”‘’！＝=|()&!*@$%<>+-/'\"]+")
+special_symbol = re.compile(r"[#'＋－×÷﹢﹣±＝=▣☆•，。★、😂【】《》？“”‘’！[]_`~]+")
 
 
 def get_content_md5(content):
@@ -107,14 +108,17 @@ def create_unique_index(col_name):
 
 def get_md5_from_mongo(col_name, content_dict):
     col = mongodb[col_name]
-    ret = list(col.find({"md5": {"$in": list(content_dict.keys())}}))
-    return ret
+    ret_list = list(col.find({"md5": {"$in": list(content_dict.keys())}}))
+    for ret in ret_list:
+        md5 = ret.get("md5")
+        del content_dict[md5]
+    return content_dict
 
 
 def build_content_dic(order, content, origin, category):
     content_dic = dict()
-    clear_content = mark_symbol.sub("", content.replace(" ", ""))  # 去掉空格，标点符号计算md5
-    md5 = get_content_md5(clear_content)
+    # clear_content = mark_symbol.sub("", content.replace(" ", ""))  # 去掉空格，标点符号计算md5
+    md5 = get_content_md5(content)
     current_time = int(time.time() * 1000)
     content_dic['order'] = order
     content_dic['content'] = content
@@ -122,7 +126,7 @@ def build_content_dic(order, content, origin, category):
     content_dic['origin'] = origin
     content_dic['category'] = category
     content_dic['md5'] = md5
-    content_dic['use'] = 0  # 0代表初始状态，1是txt，2是json，3是excel
+    content_dic['use'] = 0  # 0代表初始状态，1是txt，2是json，3是Excel，4是TXT和json
     content_dic['createAt'] = current_time
     # ret = get_md5_from_mongo(col_name, md5)
     # return content_dic if not ret else None
@@ -153,10 +157,13 @@ def choose_colName_and_datasetName(language):
         "巽他": "col_sundanese_text",
         "泰卢固": "col_telugu_text",
         "乌尔都": "col_urdu_text",
-        "土库曼": "col_tk_text",
-        "tk": "col_tk_text",
-        "新蒙语": "col_mn_text",
-        "普什图": "col_ps_text"
+        "新蒙": "col_new_mongolian_text",
+        "土库曼": "col_turkmen_text",
+        "普什图": "col_pashto_text",
+        "豪萨": "col_hausa_text",
+        "乌兹别克": "col_uzbek_text",
+        "哈萨克": "col_kazakh_text",
+        "塔吉克": "col_tajik_text"
     }
     res = names.get(language)
     if not res:
@@ -169,12 +176,12 @@ def main(input_path, language, header, sheet_name):
     print("--- script start ---")
     header = 0 if header else None
     if sheet_name:
-        df = pd.read_excel(input_path, header=header, encoding="utf-8", sheet_name=sheet_name, engine="openpyxl")
+        df = pd.read_excel(input_path, header=header, encoding="utf-8", sheet_name=sheet_name)
     else:
-        df = pd.read_excel(input_path, header=header, encoding="utf-8", engine="openpyxl")
+        df = pd.read_excel(input_path, header=header, encoding="utf-8")
     print("--- success read excel --- ")
 
-    df = df.drop_duplicates().dropna()
+    df = df.drop_duplicates()
 
     col_name = choose_colName_and_datasetName(language)
 
@@ -188,7 +195,8 @@ def main(input_path, language, header, sheet_name):
     category = 0
     col_index = "content" if header else 0
     for row in df.iterrows():
-        content = row[1][col_index].strip()
+        content = row[1][col_index].strip().replace("\n", " ").replace("\r\n", " ")
+        # order = row[1][1]
         # content = special_symbol.sub("", content)  # 去掉特殊符号
         if not content:
             continue
@@ -202,21 +210,27 @@ def main(input_path, language, header, sheet_name):
 
         data_dic[content_dict.get("md5")] = content_dict
         if len(data_dic.keys()) == 200000:
-            count += 200000
-            res = mongodb[col_name].insert_many([value for value in data_dic.values()], ordered=False)
+            _data_dic = get_md5_from_mongo(col_name, data_dic)
+            if len(_data_dic.keys()) == 0:
+                print("--- 本次待入库文本数据库全部存在 ---")
+                exit(1)
+            res = mongodb[col_name].insert_many([value for value in _data_dic.values()], ordered=False)
+            count += len(_data_dic.keys())
             print("已经向MongoDB中写入了%s条数据" % len(res.inserted_ids))
             data_dic.clear()
-        print(content_dict)
-    count += len(data_dic.keys())
+            del _data_dic
+        # print(content_dict)
+    _data_dic = get_md5_from_mongo(col_name, data_dic)
+    count += len(_data_dic.keys())
+    if len(_data_dic.keys()) == 0:
+        print("--- 本次待入库文本数据库全部存在 ---")
+        exit(1)
     res = mongodb[col_name].insert_many([value for value in data_dic.values()], ordered=False)
     print("已经向MongoDB中写入了%s条数据" % len(res.inserted_ids))
 
-    # if ret:
-    #     update_mysql(col_name, count)
-    # else:
-    #     insert_mysql(dataset_name, col_name, count, 0, 0, 5)
-    data_dic.clear()
-    print("--- script end 插入了>>{}<<条数据 ---".format(count))
+    del data_dic
+    del _data_dic
+    print("--- script end 总数据>>>{}条,去重后插入了>>>{}条数据 ---".format(df.count()[0], count))
 
 
 if __name__ == '__main__':
@@ -227,7 +241,3 @@ if __name__ == '__main__':
     sheet_name = input("请输入Excel的表名，不输入默认第一个：")
     sheet_name = sheet_name if sheet_name else None
     main(input_path, language, header, sheet_name)
-
-    # C:\Users\chenye\Desktop\test-cn-test.xlsx
-
-    # col_test_cn_2019_1223_1  测试中文2019_1220_1
